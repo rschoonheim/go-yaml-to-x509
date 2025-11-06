@@ -1,0 +1,37 @@
+# Simple format - direct certificate configuration
+serial_number: "12345678901234567890"
+subject:
+  common_name: "example.com"
+  organization: "Example Corp"
+  organizational_unit: "IT Department"
+  country: "US"
+  province: "California"
+  locality: "San Francisco"
+issuer:
+  common_name: "Example Root CA"
+  organization: "Example Corp"
+  country: "US"
+not_before: "2025-01-01T00:00:00Z"
+not_after: "2026-01-01T00:00:00Z"
+key_usage:
+  - digital_signature
+  - key_encipherment
+ext_key_usage:
+  - server_auth
+  - client_auth
+dns_names:
+  - "example.com"
+  - "www.example.com"
+  - "*.example.com"
+email_addresses:
+  - "admin@example.com"
+ip_addresses:
+  - "192.168.1.1"
+  - "2001:db8::1"
+uris:
+  - "https://example.com"
+is_ca: false
+basic_constraints_valid: true
+signature_algorithm: "SHA256WithRSA"
+public_key_algorithm: "RSA"
+

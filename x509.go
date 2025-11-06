@@ -13,31 +13,67 @@ import (
 )
 
 // X509FromYaml parses YAML data and returns an x509.Certificate object.
-// The YAML should conform to the CertificateSpec structure with fields like
-// serial_number, subject, issuer, not_before, not_after, key_usage, etc.
 //
-// Example YAML:
+// Supports two formats:
 //
-//	serial_number: "12345"
-//	subject:
-//	  common_name: "example.com"
-//	  organization: "Example Corp"
-//	issuer:
-//	  common_name: "Example CA"
-//	not_before: "2025-01-01T00:00:00Z"
-//	not_after: "2026-01-01T00:00:00Z"
-//	key_usage:
-//	  - digital_signature
-//	  - key_encipherment
-//	dns_names:
-//	  - "example.com"
+//  1. Simple format (direct certificate fields):
+//     serial_number: "12345"
+//     subject:
+//     common_name: "example.com"
+//     ...
+//
+//  2. Config segments format (reusable configuration blocks):
+//     segments:
+//     defaults:
+//     issuer:
+//     common_name: "Example CA"
+//     key_usage:
+//     - digital_signature
+//     web-server:
+//     ext_key_usage:
+//     - server_auth
+//     merge:
+//     - defaults
+//     - web-server
+//     config:
+//     subject:
+//     common_name: "example.com"
+//
+// When using segments, the 'merge' list specifies which segments to combine,
+// and 'config' provides the final overrides. Later segments and config override earlier ones.
 func X509FromYaml(yamlData []byte) (*x509.Certificate, error) {
-	spec := &internal.CertificateSpec{}
-
-	if err := yaml.Unmarshal(yamlData, spec); err != nil {
+	// First, try to parse as ConfigDocument (with segments support)
+	doc := &internal.ConfigDocument{}
+	if err := yaml.Unmarshal(yamlData, doc); err != nil {
 		return nil, err
 	}
 
+	var spec *internal.CertificateSpec
+
+	// Check if this is a segments-based config or simple config
+	if doc.Segments != nil || doc.Merge != nil {
+		// Process segments and merge
+		resolvedSpec, err := internal.ResolveConfig(doc)
+		if err != nil {
+			return nil, err
+		}
+		spec = resolvedSpec
+	} else if doc.Config != nil {
+		// Only 'config' field is present
+		spec = doc.Config
+	} else {
+		// Simple format - entire document is the spec
+		spec = &internal.CertificateSpec{}
+		if err := yaml.Unmarshal(yamlData, spec); err != nil {
+			return nil, err
+		}
+	}
+
+	return buildCertificate(spec)
+}
+
+// buildCertificate converts a CertificateSpec to an x509.Certificate
+func buildCertificate(spec *internal.CertificateSpec) (*x509.Certificate, error) {
 	cert := &x509.Certificate{
 		Subject:               internal.ParsePkixName(spec.Subject),
 		Issuer:                internal.ParsePkixName(spec.Issuer),

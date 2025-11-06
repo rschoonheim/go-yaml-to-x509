@@ -1,0 +1,45 @@
+# Basic config segments example
+# Demonstrates reusable configuration blocks
+
+segments:
+  # Default settings for all certificates
+  defaults:
+    issuer:
+      common_name: "Example Root CA"
+      organization: "Example Corp"
+      country: "US"
+    signature_algorithm: "SHA256WithRSA"
+    public_key_algorithm: "RSA"
+    not_before: "2025-01-01T00:00:00Z"
+    not_after: "2026-01-01T00:00:00Z"
+    basic_constraints_valid: true
+    key_usage:
+      - digital_signature
+
+  # Web server specific settings
+  web-server:
+    key_usage:
+      - key_encipherment
+    ext_key_usage:
+      - server_auth
+      - client_auth
+
+# Merge the segments in order
+merge:
+  - defaults
+  - web-server
+
+# Final configuration (overrides merged segments)
+config:
+  serial_number: "123456789"
+  subject:
+    common_name: "www.example.com"
+    organization: "Example Corp"
+    country: "US"
+  dns_names:
+    - "example.com"
+    - "www.example.com"
+    - "*.example.com"
+  email_addresses:
+    - "webmaster@example.com"
+

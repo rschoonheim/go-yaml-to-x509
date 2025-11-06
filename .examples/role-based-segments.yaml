@@ -1,0 +1,69 @@
+# Role-based segments example
+# Shows how to create reusable role-specific segments
+
+segments:
+  # Common defaults
+  defaults:
+    issuer:
+      common_name: "Example Root CA"
+      organization: "Example Corp"
+      country: "US"
+    signature_algorithm: "SHA256WithRSA"
+    public_key_algorithm: "RSA"
+    not_before: "2025-01-01T00:00:00Z"
+    not_after: "2026-01-01T00:00:00Z"
+    basic_constraints_valid: true
+    key_usage:
+      - digital_signature
+
+  # For web server TLS certificates
+  web-server:
+    key_usage:
+      - key_encipherment
+    ext_key_usage:
+      - server_auth
+      - client_auth
+
+  # For code signing certificates
+  code-signing:
+    key_usage:
+      - digital_signature
+    ext_key_usage:
+      - code_signing
+
+  # For email protection certificates
+  email-protection:
+    key_usage:
+      - key_encipherment
+      - data_encipherment
+    ext_key_usage:
+      - email_protection
+
+  # For CA certificates
+  certificate-authority:
+    is_ca: true
+    max_path_len: 0
+    key_usage:
+      - cert_sign
+      - crl_sign
+
+  # For timestamping certificates
+  timestamping:
+    ext_key_usage:
+      - time_stamping
+
+# Example: Create a web server certificate
+merge:
+  - defaults
+  - web-server
+
+config:
+  serial_number: "1001"
+  subject:
+    common_name: "secure.example.com"
+    organization: "Example Corp"
+    organizational_unit: "Web Services"
+  dns_names:
+    - "secure.example.com"
+    - "*.secure.example.com"
+
