@@ -1,5 +1,4 @@
-# go-x509-factory
-
+# Go - Yaml to x509 Certificate Factory
 A simple wrapper around Go's standard `crypto/x509` package that transforms YAML configuration into `x509.Certificate` structures.
 
 Nothing special - just a straightforward YAML-to-x509 transformer to make certificate configuration more readable and maintainable.
