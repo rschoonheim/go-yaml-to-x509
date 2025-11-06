@@ -1,4 +1,4 @@
-module go-x509-factory
+module github.com/rschoonheim/go-yaml-to-x509
 
 go 1.25
 

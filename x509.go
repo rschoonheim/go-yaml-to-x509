@@ -1,4 +1,4 @@
-package go_x509_factory
+package go_yaml_to_x509
 
 import (
 	"crypto/x509"
@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"go-x509-factory/internal"
+	"github.com/rschoonheim/go-yaml-to-x509/internal"
 
 	"gopkg.in/yaml.v3"
 )

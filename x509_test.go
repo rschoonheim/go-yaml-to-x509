@@ -1,9 +1,11 @@
-package go_x509_factory
+package go_yaml_to_x509_test
 
 import (
 	"crypto/x509"
 	"fmt"
 	"testing"
+
+	go_yaml_to_x509 "github.com/rschoonheim/go-yaml-to-x509"
 )
 
 func TestX509FromYaml(t *testing.T) {
@@ -41,7 +43,7 @@ signature_algorithm: "SHA256WithRSA"
 public_key_algorithm: "RSA"
 `)
 
-	cert, err := X509FromYaml(yamlData)
+	cert, err := go_yaml_to_x509.X509FromYaml(yamlData)
 	if err != nil {
 		t.Fatalf("Failed to parse YAML: %v", err)
 	}
@@ -102,7 +104,7 @@ is_ca: false
 basic_constraints_valid: true
 `)
 
-	cert, err := X509FromYaml(yamlData)
+	cert, err := go_yaml_to_x509.X509FromYaml(yamlData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
