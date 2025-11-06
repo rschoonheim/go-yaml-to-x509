@@ -18,7 +18,7 @@ This library parses YAML data and transforms it into Go's `x509.Certificate` str
 ## Installation
 
 ```bash
-go get -u go-x509-factory
+go get -u github.com/rschoonheim/go-yaml-to-x509
 ```
 
 ## Usage
