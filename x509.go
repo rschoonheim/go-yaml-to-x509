@@ -42,7 +42,7 @@ import (
 // When using segments, the 'merge' list specifies which segments to combine,
 // and 'config' provides the final overrides. Later segments and config override earlier ones.
 func X509FromYaml(yamlData []byte) (*x509.Certificate, error) {
-	// First, try to parse as ConfigDocument (with segments support)
+	// Parse YAML into ConfigDocument
 	doc := &internal.ConfigDocument{}
 	if err := yaml.Unmarshal(yamlData, doc); err != nil {
 		return nil, err
@@ -50,23 +50,23 @@ func X509FromYaml(yamlData []byte) (*x509.Certificate, error) {
 
 	var spec *internal.CertificateSpec
 
-	// Check if this is a segments-based config or simple config
-	if doc.Segments != nil || doc.Merge != nil {
-		// Process segments and merge
+	switch {
+	default:
+		// Handle simple format
+		spec = &internal.CertificateSpec{}
+		if err := yaml.Unmarshal(yamlData, spec); err != nil {
+			return nil, err
+		}
+	case doc.Segments != nil || doc.Merge != nil:
+		// Handle segments-based config
 		resolvedSpec, err := internal.ResolveConfig(doc)
 		if err != nil {
 			return nil, err
 		}
 		spec = resolvedSpec
-	} else if doc.Config != nil {
-		// Only 'config' field is present
+	case doc.Config != nil:
+		// Handle 'config' field only
 		spec = doc.Config
-	} else {
-		// Simple format - entire document is the spec
-		spec = &internal.CertificateSpec{}
-		if err := yaml.Unmarshal(yamlData, spec); err != nil {
-			return nil, err
-		}
 	}
 
 	return buildCertificate(spec)
